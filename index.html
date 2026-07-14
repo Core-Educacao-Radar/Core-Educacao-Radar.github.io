@@ -362,7 +362,7 @@
     <section class="slide" style="--ac:var(--gold)">
       <div class="kick"><span>Metas</span><span class="line"></span><span class="heat">Primeiros virais</span></div>
       <h2 class="title" style="font-size:clamp(24px,4vw,54px)">Meta de cada <span class="y">squad</span></h2>
-      <p class="tagline" style="margin:-6px 0 2px">Primeiros virais · lê a planilha ao vivo</p>
+      <p class="tagline" style="margin:-6px 0 2px">Primeiros virais · <span class="lastread">lendo a planilha…</span></p>
       <div class="sgoals" id="squadGoals"><p class="tagline">Carregando…</p></div>
       <div class="goal"></div>
     </section>
@@ -371,7 +371,7 @@
     <section class="slide" style="--ac:var(--steel)">
       <div class="kick"><span>Ranking</span><span class="line"></span><span class="heat">Squads</span></div>
       <h2 class="title" style="font-size:clamp(24px,4vw,54px)">Squad com mais <span class="y">primeiros virais</span></h2>
-      <p class="tagline" style="margin:-6px 0 2px">Squad vem da coluna SQUAD da planilha · lê ao vivo</p>
+      <p class="tagline" style="margin:-6px 0 2px">Squad vem da coluna SQUAD · <span class="lastread">lendo a planilha…</span></p>
       <ol class="rank" id="rankSquad" style="max-width:1000px"><li><span class="who">Carregando…</span></li></ol>
       <div class="totals"></div>
     </section>
@@ -380,6 +380,7 @@
     <section class="slide" style="--ac:var(--rose)">
       <div class="kick"><span>Cases</span><span class="line"></span><span class="heat">Do mês</span></div>
       <h2 class="title" style="font-size:clamp(24px,4vw,54px)">Cases <span class="y">do mês</span></h2>
+      <p class="tagline" style="margin:-6px 0 2px"><span class="lastread">lendo a planilha…</span></p>
       <div class="cases-wrap">
         <div>
           <p class="blk-label">Ranking de cases</p>
@@ -481,7 +482,7 @@
     'Black Squadron':8,
     'Cavalo de Troia':null
   };
-  var REFRESH_MS=10*60*1000; // re-lê a planilha a cada 10 min
+  var REFRESH_MS=30*1000; // re-lê a planilha a cada 30s (o CSV do Google é no-cache)
   var META_PRIMEIROS_VIRAIS=40; // meta do time (troque aqui para mudar a meta)
 
   function parseCSV(text){
@@ -642,14 +643,26 @@
       }).join('') : '<div class="case-card"><span class="cname" style="color:var(--ink-3)">Nenhum case ainda</span></div>';
   }
 
+  function marcaLeitura(ok){
+    var d=new Date();
+    var p=function(n){ return (n<10?'0':'')+n; };
+    var txt = ok ? ('planilha lida às '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds()))
+                 : 'falha ao ler a planilha — tentando de novo';
+    [].forEach.call(document.querySelectorAll('.lastread'), function(el){ el.textContent = txt; });
+  }
   function load(){
     fetch('https://docs.google.com/spreadsheets/d/'+SID+'/export?format=csv&_='+Date.now())
       .then(function(r){ return r.ok?r.text():''; })
-      .then(function(t){ try{ render(rowsFrom(t)); }catch(e){ console.error('render',e); } })
-      .catch(function(e){ console.error('fetch planilha',e); });
+      .then(function(t){
+        try{ render(rowsFrom(t)); marcaLeitura(true); }
+        catch(e){ console.error('render',e); marcaLeitura(false); }
+      })
+      .catch(function(e){ console.error('fetch planilha',e); marcaLeitura(false); });
   }
   load();
   setInterval(load, REFRESH_MS);
+  // re-lê na hora se a TV/aba voltar a ficar visível
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden) load(); });
 })();
 </script>
 
