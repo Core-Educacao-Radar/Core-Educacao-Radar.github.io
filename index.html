@@ -3,13 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
 <title>RADAR de Assuntos Virais — Core</title>
 <style>
   :root{
     --bg:#0A0A0D; --bg-2:#111015; --surface:#17161D; --surface-2:#201E28;
     --ink:#F4F1EA; --ink-2:#A6A1B2; --ink-3:#6B6678;
     --gold:#EFC13A; --gold-2:#F7D46B;
-    --violet:#8E74F2; --steel:#7E93C4; --rose:#E8709A;
+    --violet:#8E74F2; --steel:#7E93C4; --rose:#E8709A; --teal:#4FD1A5;
     --line:rgba(244,241,234,.10); --line-soft:rgba(244,241,234,.07);
     --ac:var(--gold); --slide-secs:14s;
   }
@@ -76,6 +77,14 @@
   /* referências reais */
   .ref-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(13px,1.6vw,22px);}
   @media(max-width:900px){.ref-grid{grid-template-columns:1fr;}}
+  /* embeds de video (instagram) */
+  .embed-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(14px,2vw,34px);align-items:start;width:100%;max-width:1200px;margin:0 auto;}
+  @media(max-width:820px){.embed-grid{grid-template-columns:1fr;}}
+  .embed{display:flex;flex-direction:column;gap:9px;width:100%;min-width:0;}
+  .embed figcaption{display:flex;flex-direction:column;gap:2px;font-size:clamp(12px,1.25vw,15px);line-height:1.2;color:var(--ink-2);}
+  .embed figcaption .handle{font-family:ui-monospace,Menlo,monospace;font-weight:700;color:var(--ac);font-size:clamp(11px,1.1vw,13px);}
+  .embed iframe{width:100%;height:clamp(320px,50vh,560px);border:0;border-radius:14px;background:#111;
+    border:1px solid var(--line);}
   .ref{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:clamp(15px,1.8vw,22px);
     display:flex;flex-direction:column;gap:10px;border-top:3px solid var(--ac);}
   .ref .rhead{display:flex;align-items:center;justify-content:space-between;gap:8px;}
@@ -86,12 +95,115 @@
   .ref .quote{font-size:clamp(15px,1.7vw,23px);line-height:1.18;font-weight:700;color:var(--ink);}
   .ref .quote::before{content:"“";color:var(--ac);} .ref .quote::after{content:"”";color:var(--ac);}
 
+  /* ranking */
+  .rank{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:clamp(6px,1vh,13px);}
+  .rank li{display:flex;align-items:center;gap:clamp(10px,1.4vw,20px);padding:clamp(8px,1.2vh,15px) clamp(13px,1.3vw,20px);
+    background:var(--surface);border:1px solid var(--line);border-radius:12px;border-left:4px solid var(--ac);}
+  .rank li.first{border-left-color:var(--gold);background:linear-gradient(90deg,rgba(239,193,58,.12),var(--surface));}
+  .rank li .pos{font-family:ui-monospace,Menlo,monospace;font-weight:800;font-size:clamp(16px,2vw,28px);color:var(--ac);width:2.1em;flex:none;}
+  .rank li.first .pos{color:var(--gold);}
+  .rank li .who{flex:1;min-width:0;font-size:clamp(15px,1.8vw,25px);font-weight:700;line-height:1.15;}
+  .rank li .who small{display:block;color:var(--ink-2);font-weight:400;font-size:.68em;margin-top:3px;}
+  .rank li .val{font-family:ui-monospace,Menlo,monospace;font-weight:800;font-size:clamp(15px,1.9vw,27px);color:var(--ink);white-space:nowrap;}
+  .rank li .who .rhl{display:block;margin-top:6px;font-weight:700;font-size:.78em;line-height:1.18;color:var(--ac);}
+  .rank li.totalrow{margin-top:clamp(6px,1vh,12px);background:linear-gradient(90deg,rgba(239,193,58,.16),rgba(239,193,58,.04));
+    border:1px dashed var(--gold);border-left:4px solid var(--gold);}
+  .rank li.totalrow .pos{color:var(--gold);font-size:clamp(15px,1.8vw,26px);}
+  .rank li.totalrow .who{letter-spacing:.08em;font-family:ui-monospace,Menlo,monospace;font-size:clamp(13px,1.5vw,20px);}
+  .rank li.totalrow .who small{letter-spacing:0;font-family:"Helvetica Neue",Arial,sans-serif;}
+  .rank li.totalrow .val{color:var(--gold);font-size:clamp(18px,2.3vw,34px);}
+  .bigviral .vhl{margin:0 0 8px;font-size:clamp(16px,1.9vw,27px);font-weight:800;line-height:1.16;color:var(--ink);}
+
+  /* cards de assuntos virais agrupados */
+  .vgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(14px,1.8vw,28px);align-items:start;}
+  @media(max-width:900px){.vgrid{grid-template-columns:1fr;}}
+  .vcard{background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--ac);border-radius:14px;
+    padding:clamp(14px,1.7vw,22px);display:flex;flex-direction:column;gap:clamp(8px,1.2vh,14px);}
+  .vcard .vtag{font-family:ui-monospace,Menlo,monospace;font-size:clamp(9px,.95vw,11.5px);letter-spacing:.14em;
+    text-transform:uppercase;color:var(--ac);}
+  .vcard h3{margin:0;font-size:clamp(17px,2vw,28px);font-weight:800;line-height:1.1;letter-spacing:-.01em;}
+  .vcard ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:clamp(6px,1vh,11px);}
+  .vcard li{font-size:clamp(13px,1.4vw,19px);line-height:1.28;padding-left:16px;position:relative;color:var(--ink-2);}
+  .vcard li::before{content:"";position:absolute;left:0;top:.6em;width:8px;height:2px;background:var(--ac);}
+  .vcard li b{color:var(--ink);font-weight:700;}
+
+  /* meta por squad */
+  .sgoals{display:flex;flex-direction:column;gap:clamp(5px,.8vh,10px);max-width:1100px;}
+  .sg{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:12px;
+    padding:clamp(6px,.9vh,11px) clamp(13px,1.3vw,20px);}
+  .sg.done{border-left-color:#5ED17E;background:linear-gradient(90deg,rgba(94,209,126,.12),var(--surface));}
+  .sg.tbd{border-left-color:var(--ink-3);opacity:.75;}
+  .sg .sghead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;}
+  .sg .sgname{font-size:clamp(14px,1.7vw,24px);font-weight:800;}
+  .sg .sgnum{font-family:ui-monospace,Menlo,monospace;font-weight:800;font-size:clamp(15px,1.9vw,26px);color:var(--gold);white-space:nowrap;}
+  .sg.done .sgnum{color:#5ED17E;}
+  .sg .sgnum small{color:var(--ink-2);font-weight:600;font-size:.68em;}
+  .sg .sgtbd{font-family:ui-monospace,Menlo,monospace;font-size:clamp(10px,1.1vw,14px);color:var(--ink-3);
+    text-transform:uppercase;letter-spacing:.1em;}
+  .sg .sgbar{height:clamp(5px,.75vh,9px);background:var(--surface-2);border-radius:99px;overflow:hidden;
+    margin-top:5px;border:1px solid var(--line);}
+  .sg .sgbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold-2),var(--gold));
+    border-radius:99px;transition:width .9s ease;}
+  .sg.done .sgbar i{background:linear-gradient(90deg,#8BE5A6,#5ED17E);}
+  .sg .sgfoot{display:flex;justify-content:space-between;gap:10px;margin-top:3px;
+    font-family:ui-monospace,Menlo,monospace;font-size:clamp(9.5px,1vw,12px);color:var(--ink-2);}
+
+  /* meta do time */
+  .goal{max-width:1000px;margin-top:clamp(10px,1.5vh,16px);background:var(--surface);border:1px solid var(--line);
+    border-left:4px solid var(--gold);border-radius:14px;padding:clamp(10px,1.4vh,16px) clamp(14px,1.5vw,22px);}
+  .goal .ghead{display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap;}
+  .goal .gl{font-family:ui-monospace,Menlo,monospace;font-size:clamp(10px,1.05vw,13px);letter-spacing:.16em;
+    text-transform:uppercase;color:var(--ink-3);}
+  .goal .gv{font-family:ui-monospace,Menlo,monospace;font-weight:800;font-size:clamp(20px,2.4vw,36px);color:var(--gold);line-height:1;}
+  .goal .gs{font-size:.46em;color:var(--ink-2);font-weight:600;}
+  .goal .bar{height:clamp(8px,1.1vh,14px);background:var(--surface-2);border-radius:99px;overflow:hidden;margin:9px 0 6px;
+    border:1px solid var(--line);}
+  .goal .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold-2),var(--gold));
+    border-radius:99px;transition:width .9s ease;}
+  .goal .gfoot{display:flex;justify-content:space-between;gap:12px;font-family:ui-monospace,Menlo,monospace;
+    font-size:clamp(11px,1.15vw,15px);color:var(--ink-2);}
+  .goal .gfoot b{color:var(--gold);}
+
+  /* totais */
+  .totals{display:flex;gap:clamp(10px,1.4vw,22px);flex-wrap:wrap;margin-top:clamp(10px,1.4vh,16px);}
+  .tot{background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--ac);border-radius:12px;
+    padding:clamp(8px,1.2vh,13px) clamp(12px,1.4vw,20px);display:flex;flex-direction:column;gap:3px;min-width:clamp(140px,15vw,200px);}
+  .tot .tl{font-family:ui-monospace,Menlo,monospace;font-size:clamp(9px,.95vw,11px);letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);}
+  .tot .tv{font-family:ui-monospace,Menlo,monospace;font-weight:800;font-size:clamp(17px,2.1vw,30px);color:var(--ac);line-height:1;}
+
+  .rank-two{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,3vw,50px);align-items:start;}
+  @media(max-width:900px){.rank-two{grid-template-columns:1fr;}}
+
+  /* maior viral (ranking + video) */
+  .bigviral{display:grid;grid-template-columns:1.25fr .75fr;gap:clamp(20px,3vw,52px);align-items:start;}
+  @media(max-width:900px){.bigviral{grid-template-columns:1fr;}}
+  .bigviral .vcap{margin:0 0 9px;font-size:clamp(13px,1.4vw,18px);color:var(--ink-2);}
+  .bigviral .vcap b{color:var(--gold);font-family:ui-monospace,Menlo,monospace;}
+  .bigviral iframe{width:100%;height:clamp(280px,44vh,500px);border:1px solid var(--line);border-radius:14px;background:#111;}
+  .bigviral .vlink{display:inline-block;padding:12px 18px;border:1px solid var(--ac);border-radius:10px;color:var(--ac);text-decoration:none;font-weight:700;}
+  .bigviral .ttcard{height:clamp(240px,40vh,460px);border-radius:14px;border:1px solid var(--line);
+    background:linear-gradient(160deg,rgba(142,116,242,.16),rgba(23,22,29,.9));
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(10px,1.6vh,18px);}
+  .bigviral .ttbadge{font-family:ui-monospace,Menlo,monospace;font-size:clamp(10px,1.05vw,13px);letter-spacing:.18em;
+    text-transform:uppercase;color:var(--ac);border:1px solid var(--ac);border-radius:999px;padding:4px 12px;}
+  .bigviral .ttico{font-size:clamp(34px,4.5vw,64px);color:var(--ac);line-height:1;opacity:.9;}
+
+  /* cases */
+  .cases-wrap{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,3vw,50px);align-items:start;}
+  @media(max-width:900px){.cases-wrap{grid-template-columns:1fr;}}
+  .cases-list{display:flex;flex-direction:column;gap:clamp(9px,1.4vh,15px);}
+  .case-card{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--rose);border-radius:12px;
+    padding:clamp(12px,1.6vh,18px) clamp(14px,1.4vw,20px);display:flex;flex-direction:column;gap:3px;}
+  .case-card .cname{font-size:clamp(16px,1.9vw,26px);font-weight:800;}
+  .case-card .cest{font-size:clamp(12px,1.25vw,16px);color:var(--ink-2);}
+  .case-card .clink{font-family:ui-monospace,Menlo,monospace;font-size:clamp(11px,1.15vw,14px);color:var(--rose);}
+
   /* cover ticker */
   .ticker-tags{display:flex;flex-wrap:wrap;gap:11px;margin-top:8px;}
   .ttag{font-size:clamp(13px,1.5vw,21px);font-weight:600;padding:8px 17px;border-radius:999px;
     border:1px solid var(--line);color:var(--ink);display:inline-flex;align-items:center;gap:9px;background:rgba(23,22,29,.5);}
   .ttag .d{width:9px;height:9px;border-radius:50%;}
-  .ttag .d.g{background:var(--gold);} .ttag .d.v{background:var(--violet);} .ttag .d.s{background:var(--steel);} .ttag .d.r{background:var(--rose);}
+  .ttag .d.g{background:var(--gold);} .ttag .d.v{background:var(--violet);} .ttag .d.s{background:var(--steel);} .ttag .d.r{background:var(--rose);} .ttag .d.t{background:var(--teal);}
 
   /* agenda */
   .agenda{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;}
@@ -148,127 +260,147 @@
       <h1 class="big"><span class="y">RADAR</span><br>de assuntos<br>virais.</h1>
       <p class="subtitle">Os assuntos mais quentes do momento e os vídeos que estão viralizando com cada tema.</p>
       <div class="ticker-tags">
-        <span class="ttag"><span class="d r"></span>Maíra Cardi × refrigerante</span>
-        <span class="ttag"><span class="d g"></span>Trump cancela cartão vermelho</span>
-        <span class="ttag"><span class="d g"></span>Árbitro sob suspeita</span>
-        <span class="ttag"><span class="d g"></span>FBI investiga a Argentina</span>
-        <span class="ttag"><span class="d v"></span>Haaland &amp; Remada Viking</span>
-        <span class="ttag"><span class="d s"></span>Emmy · Zendaya</span>
+        <span class="ttag"><span class="d g"></span>Semifinal da Copa é hoje</span>
+        <span class="ttag"><span class="d v"></span>FBI investiga a Argentina</span>
+        <span class="ttag"><span class="d s"></span>Arbitragem sob suspeita</span>
+        <span class="ttag"><span class="d r"></span>Virginia × Lídia · Maíra Cardi</span>
+        <span class="ttag"><span class="d t"></span>Implante de Ozempic</span>
       </div>
     </section>
 
-    <!-- 1 · MAÍRA CARDI -->
+    <!-- 1 · VIRGINIA × LÍDIA -->
     <section class="slide" style="--ac:var(--rose)">
-      <div class="kick"><span class="idx">01</span><span>Assunto viral</span><span class="line"></span><span class="heat">Explodindo</span></div>
-      <h2 class="title">Maíra Cardi joga fora o <span class="y">refrigerante do marido</span></h2>
-      <p class="blk-label">O que aconteceu</p>
-      <ul class="facts two">
-        <li>Maíra contou que <b>jogou no lixo o refrigerante</b> do delivery do Thiago Nigro: “aqui não entra açúcar nem refrigerante. Aqui dentro, não.”</li>
-        <li>Thiago respondeu tomando <b>coca na varanda</b>: “um homem bebendo sua coquinha não quer guerra com ninguém”.</li>
-        <li>No sábado ela <b>ironizou as críticas</b> com um vídeo “antes e depois” do peso dele: “Vai um?”.</li>
-        <li>Web dividida entre <b>“controle excessivo”</b> / “terrorismo alimentar” e quem defende os hábitos da casa.</li>
-      </ul>
+      <div class="kick"><span class="idx">01</span><span>Assuntos virais</span><span class="line"></span><span class="heat">Esporte &amp; poder</span></div>
+      <h2 class="title" style="font-size:clamp(24px,4vw,54px)">A Copa e os <span class="y">escândalos</span></h2>
+      <div class="vgrid">
+        <div class="vcard" style="--ac:var(--gold)">
+          <span class="vtag">Hoje · 16h</span>
+          <h3>Semifinal da Copa é hoje</h3>
+          <ul>
+            <li><b>Hoje, 16h:</b> França × Espanha (Dallas).</li>
+            <li><b>Amanhã, 16h:</b> Inglaterra × Argentina (Atlanta).</li>
+            <li><b>Final domingo (19), 16h</b> — pico de audiência do ano.</li>
+          </ul>
+        </div>
+        <div class="vcard" style="--ac:var(--violet)">
+          <span class="vtag">Investigação</span>
+          <h3>O FBI de olho na Argentina</h3>
+          <ul>
+            <li>A <b>AFA na mira do FBI</b> por fraude e lavagem.</li>
+            <li><b>+US$ 300 milhões</b> movimentados nos EUA.</li>
+            <li>E a Argentina joga a <b>semi amanhã</b>: pico duplo.</li>
+          </ul>
+        </div>
+        <div class="vcard" style="--ac:var(--steel)">
+          <span class="vtag">Polêmica</span>
+          <h3>A arbitragem sob suspeita</h3>
+          <ul>
+            <li>FIFA <b>anulou um cartão vermelho</b> após ligação de <b>Trump</b>.</li>
+            <li>Ele chamou o <b>árbitro brasileiro de “suspeito”</b>.</li>
+            <li><b>UEFA:</b> “jogou no lixo as leis do esporte”.</li>
+          </ul>
+        </div>
+      </div>
     </section>
 
-    <!-- 2 · TRUMP -->
+    <!-- 2 · ASSUNTOS VIRAIS · COMPORTAMENTO & SAÚDE -->
+    <section class="slide" style="--ac:var(--rose)">
+      <div class="kick"><span class="idx">02</span><span>Assuntos virais</span><span class="line"></span><span class="heat">Comportamento &amp; saúde</span></div>
+      <h2 class="title" style="font-size:clamp(24px,4vw,54px)">O que o Brasil está <span class="y">discutindo</span></h2>
+      <div class="vgrid">
+        <div class="vcard" style="--ac:var(--rose)">
+          <span class="vtag">Redes</span>
+          <h3>A briga de Virginia e Lídia era combinada?</h3>
+          <ul>
+            <li>Trocaram farpas na festa do Vini Jr.: “está com ciúmes?”.</li>
+            <li><b>Fontes dizem que foi combinado</b> pra gerar engajamento.</li>
+            <li>O debate: <b>onde acaba o real e começa o encenado</b>.</li>
+          </ul>
+        </div>
+        <div class="vcard" style="--ac:var(--rose)">
+          <span class="vtag">Relacionamento</span>
+          <h3>Maíra Cardi joga fora o refrigerante do marido</h3>
+          <ul>
+            <li>“Aqui dentro, <b>não entra açúcar nem refrigerante</b>.”</li>
+            <li>Thiago respondeu tomando <b>coca na varanda</b>.</li>
+            <li>Web dividida: <b>cuidado ou controle excessivo?</b></li>
+          </ul>
+        </div>
+        <div class="vcard" style="--ac:var(--teal)">
+          <span class="vtag">Saúde &amp; negócios</span>
+          <h3>Depois das canetas, vem o implante</h3>
+          <ul>
+            <li><b>Vivani + Novo Nordisk</b> testam implante de semaglutida — <b>ação de até 1 ano</b>.</li>
+            <li><b>Metade abandona</b> o tratamento em 1 ano.</li>
+            <li>A <b>Nestlé</b> ajusta receitas: os remédios <b>mudam o paladar</b>.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 · VÍDEOS VIRAIS (EMBEDS) -->
+    <section class="slide" style="--ac:var(--rose)">
+      <div class="kick"><span>Vídeos virais no Instagram</span><span class="line"></span><span class="heat">Tocando na plataforma</span></div>
+      <h2 class="title" style="font-size:clamp(22px,3.6vw,48px)">O que está <span class="y">bombando agora</span></h2>
+      <div class="embed-grid">
+        <figure class="embed">
+          <figcaption><span class="handle">@premierdabola</span>Neymar e os vídeos de IA · o que isso diz sobre deepfake</figcaption>
+          <iframe src="https://www.instagram.com/reel/DauGY0CtCkQ/embed/" scrolling="no" allowtransparency="true" allow="clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
+        </figure>
+        <figure class="embed">
+          <figcaption><span class="handle">@marcia.go1ds</span>Vini Jr. e a acusação envolvendo apostas · integridade no esporte</figcaption>
+          <iframe src="https://www.instagram.com/reel/DalVBp7yBXS/embed/" scrolling="no" allowtransparency="true" allow="clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
+        </figure>
+        <figure class="embed">
+          <figcaption><span class="handle">@fuxican_do</span>Virginia × Lídia: treta combinada? · o real e o encenado nas redes · 129 mil curtidas</figcaption>
+          <iframe src="https://www.instagram.com/reel/DW3sQTAhQ-O/embed/" scrolling="no" allowtransparency="true" allow="clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
+        </figure>
+      </div>
+    </section>
+
+    <!-- 7 · META DE CADA SQUAD -->
     <section class="slide" style="--ac:var(--gold)">
-      <div class="kick"><span class="idx">02</span><span>Assunto viral</span><span class="line"></span><span class="heat">Explodindo</span></div>
-      <h2 class="title">Trump manda a FIFA <span class="y">cancelar um cartão vermelho</span></h2>
-      <p class="blk-label">O que aconteceu</p>
-      <ul class="facts two">
-        <li>A FIFA <b>anulou o vermelho de Balogun</b> (EUA) depois que Trump ligou para Infantino.</li>
-        <li>Trump admitiu a ligação, chamou o <b>árbitro brasileiro de “suspeito”</b> e comemorou: “revertendo uma injustiça”.</li>
-        <li><b>UEFA e União Europeia criticaram:</b> “jogou no lixo as leis do esporte”.</li>
-        <li>A defesa da FIFA se apoia no <b>Artigo 27</b> do código disciplinar.</li>
-      </ul>
+      <div class="kick"><span>Metas</span><span class="line"></span><span class="heat">Primeiros virais</span></div>
+      <h2 class="title" style="font-size:clamp(24px,4vw,54px)">Meta de cada <span class="y">squad</span></h2>
+      <p class="tagline" style="margin:-6px 0 2px">Primeiros virais · lê a planilha ao vivo</p>
+      <div class="sgoals" id="squadGoals"><p class="tagline">Carregando…</p></div>
+      <div class="goal"></div>
     </section>
 
-    <!-- 3 · ÁRBITRO -->
+    <!-- 8 · RANKING · SQUADS -->
     <section class="slide" style="--ac:var(--steel)">
-      <div class="kick"><span class="idx">03</span><span>Assunto viral</span><span class="line"></span><span class="heat">Explodindo</span></div>
-      <h2 class="title">A arbitragem da Copa <span class="y">sob suspeita</span></h2>
-      <p class="blk-label">O que aconteceu</p>
-      <ul class="facts two">
-        <li><b>Seleções africanas revoltadas:</b> Senegal e Gana acusam critério diferente contra as potências.</li>
-        <li>O <b>Egito enviou carta formal à FIFA</b> pedindo investigação de um árbitro.</li>
-        <li>Um <b>pênalti não marcado</b> virou o maior erro do torneio até agora.</li>
-        <li>Com Trump chamando árbitro de “suspeito”, a palavra <b>corrupção</b> entrou no debate.</li>
-      </ul>
+      <div class="kick"><span>Ranking</span><span class="line"></span><span class="heat">Squads</span></div>
+      <h2 class="title" style="font-size:clamp(24px,4vw,54px)">Squad com mais <span class="y">primeiros virais</span></h2>
+      <p class="tagline" style="margin:-6px 0 2px">Squad vem da coluna SQUAD da planilha · lê ao vivo</p>
+      <ol class="rank" id="rankSquad" style="max-width:1000px"><li><span class="who">Carregando…</span></li></ol>
+      <div class="totals"></div>
     </section>
 
-    <!-- 4 · FBI ARGENTINA -->
-    <section class="slide" style="--ac:var(--violet)">
-      <div class="kick"><span class="idx">04</span><span>Assunto viral</span><span class="line"></span><span class="heat">Explodindo</span></div>
-      <h2 class="title">O FBI está de olho <span class="y">na Argentina</span></h2>
-      <p class="blk-label">O que aconteceu</p>
-      <ul class="facts two">
-        <li>A <b>federação argentina (AFA) na mira do FBI</b> por suspeita de fraude e lavagem de dinheiro.</li>
-        <li>Investigam <b>+US$ 300 milhões</b> movimentados no sistema bancário dos EUA.</li>
-        <li>No centro: uma empresa e contratos com <b>Adidas (US$60mi) e Warner (US$40mi)</b>.</li>
-        <li>Gestão de <b>“Chiqui” Tapia</b> sob apuração — ainda sem caso criminal formal.</li>
-      </ul>
-    </section>
-
-    <!-- 5 · HAALAND -->
-    <section class="slide" style="--ac:var(--gold)">
-      <div class="kick"><span class="idx">05</span><span>Fenômeno cultural</span><span class="line"></span><span class="heat">Em alta</span></div>
-      <h2 class="title">Haaland &amp; a <span class="y">Remada Viking</span></h2>
-      <p class="blk-label">O que aconteceu</p>
-      <ul class="facts two">
-        <li>A <b>remada viking</b> da torcida da Noruega tomou Times Square, elevadores e o parlamento.</li>
-        <li>Buscar <b>“Haaland” no Google</b> ativa uma animação — ele mesmo pediu pra galera buscar.</li>
-        <li>A Noruega voltou a uma Copa <b>depois de 28 anos</b> e virou a queridinha do torneio.</li>
-      </ul>
-    </section>
-
-    <!-- 6 · REFERÊNCIAS REAIS -->
+    <!-- 9 · CASES -->
     <section class="slide" style="--ac:var(--rose)">
-      <div class="kick"><span>Vídeos que estão viralizando</span><span class="line"></span><span class="heat">O texto dos primeiros 5s</span></div>
-      <h2 class="title" style="font-size:clamp(26px,4.2vw,58px)">Headlines de tela que <span class="y">bombaram</span></h2>
-      <p class="tagline" style="margin:-6px 0 2px">O que aparece na tela nesses vídeos virais — referência pra criar o seu</p>
-      <div class="ref-grid">
-        <div class="ref" style="--ac:var(--rose)">
-          <div class="rhead"><span class="handle">@obrenocop</span><span class="vpill">Viral</span></div>
-          <span class="theme">Relacionamento</span>
-          <span class="quote">Maíra Cardi joga fora o refrigerante do Thiago Nigro: aqui dentro, não.</span>
+      <div class="kick"><span>Cases</span><span class="line"></span><span class="heat">Do mês</span></div>
+      <h2 class="title" style="font-size:clamp(24px,4vw,54px)">Cases <span class="y">do mês</span></h2>
+      <div class="cases-wrap">
+        <div>
+          <p class="blk-label">Ranking de cases</p>
+          <ol class="rank" id="rankCases"><li><span class="who">Carregando…</span></li></ol>
         </div>
-        <div class="ref" style="--ac:var(--rose)">
-          <div class="rhead"><span class="handle">@mairacardi</span><span class="vpill">Viral</span></div>
-          <span class="theme">Relacionamento · fala original</span>
-          <span class="quote">Aqui na minha casa não entra açúcar de forma alguma.</span>
-        </div>
-        <div class="ref" style="--ac:var(--rose)">
-          <div class="rhead"><span class="handle">@thiago.nigro</span><span class="vpill">Viral</span></div>
-          <span class="theme">Relacionamento · resposta</span>
-          <span class="quote">Um homem bebendo sua coquinha não quer guerra com ninguém.</span>
-        </div>
-        <div class="ref" style="--ac:var(--gold)">
-          <div class="rhead"><span class="handle">@eufabiomariani</span><span class="vpill">Viral</span></div>
-          <span class="theme">Futebol · reação</span>
-          <span class="quote">Foi eliminado.</span>
-        </div>
-        <div class="ref" style="--ac:var(--steel)">
-          <div class="rhead"><span class="handle">@cafecomcatole</span><span class="vpill">Viral</span></div>
-          <span class="theme">Opinião · futebol</span>
-          <span class="quote">A CBF e o Ancelotti já sabiam que não iam ganhar essa Copa.</span>
-        </div>
-        <div class="ref" style="--ac:var(--violet)">
-          <div class="rhead"><span class="handle">@cazetv</span><span class="vpill">Viral</span></div>
-          <span class="theme">Humor · futebol</span>
-          <span class="quote">Impossível superar… essa é só pra quem pegou a referência.</span>
+        <div>
+          <p class="blk-label">Cases fechados</p>
+          <div class="cases-list" id="casesList"></div>
         </div>
       </div>
     </section>
 
-    <!-- 7 · AGENDA -->
+    <!-- 10 · AGENDA -->
     <section class="slide" style="--ac:var(--gold)">
       <div class="kick"><span>Agenda de picos</span><span class="line"></span></div>
       <h2 class="title">Quando a pauta <span class="y">vai bombar de novo</span></h2>
       <ul class="agenda">
-        <li><span class="when">Esta semana</span><span class="what"><b>Semifinais da Copa</b><small>Novos lances = novas polêmicas de arbitragem pra reagir</small></span></li>
-        <li><span class="when">Andamento</span><span class="what"><b>Trump × FIFA e FBI × Argentina</b><small>Reação da UEFA pode reacender o debate a qualquer hora</small></span></li>
-        <li><span class="when">Rolando</span><span class="what"><b>Maíra × Thiago</b><small>A cada resposta nas redes o assunto ganha um novo capítulo</small></span></li>
-        <li><span class="when">Dom 19</span><span class="what"><b>Final da Copa</b><small>O clímax de audiência do ano — planejar conteúdo antes</small></span></li>
+        <li><span class="when">Hoje · 16h</span><span class="what"><b>França × Espanha</b> (semifinal, Dallas)<small>Cada lance vira polêmica de arbitragem pra reagir na hora</small></span></li>
+        <li><span class="when">Amanhã · 16h</span><span class="what"><b>Inglaterra × Argentina</b> (semifinal, Atlanta)<small>Argentina em campo com o FBI no noticiário: pico duplo</small></span></li>
+        <li><span class="when">Dom 19 · 16h</span><span class="what"><b>Final da Copa</b><small>O clímax de audiência do ano — planejar o conteúdo antes</small></span></li>
+        <li><span class="when">Rolando</span><span class="what"><b>Virginia × Lídia e Maíra × Thiago</b><small>A cada resposta nas redes o assunto ganha um novo capítulo</small></span></li>
       </ul>
     </section>
 
@@ -301,7 +433,7 @@
   var pauseBtn=document.getElementById('pauseBtn');
   var fsBtn=document.getElementById('fsBtn');
   var stage=document.getElementById('stage');
-  var labels=['Capa','Maíra Cardi','Trump × FIFA','Árbitro suspeito','FBI × Argentina','Haaland','Vídeos virais','Agenda'];
+  var labels=['Capa','Copa & escândalos','Comportamento & saúde','Vídeos virais','Meta de cada squad','Ranking · squads','Cases do mês','Agenda'];
   var DURATION=14000, idx=0, timer=null, paused=false;
 
   slides.forEach(function(){var seg=document.createElement('div');seg.className='seg';seg.innerHTML='<i></i>';progress.appendChild(seg);});
@@ -331,6 +463,193 @@
   frame.addEventListener('click',function(e){var mid=frame.getBoundingClientRect().left+frame.clientWidth/2;if(e.clientX<mid)prev();else next();});
 
   render();schedule();
+})();
+</script>
+
+<script>
+/* ===== RANKING: lê a planilha do Google ao vivo (todas as abas = squads) ===== */
+(function(){
+  var SID='1NM8oJ_QfCtgfhlTkkeXIdyySC-KuGIwHGnSIE93RXaQ';
+  // A planilha tem UMA aba. O squad vem da COLUNA "SQUAD" de cada linha.
+  // Esta lista só garante que todos os squads apareçam no ranking (mesmo com 0).
+  var SQUADS_CONHECIDOS=['Apex','Cavalo de Troia','Só para viralizar','DAVI','Black Squadron'];
+  // Meta de primeiros virais por squad (null = a definir). Troque os números aqui.
+  var METAS_SQUAD={
+    'Apex':7,
+    'Só para viralizar':7,
+    'DAVI':7,
+    'Black Squadron':8,
+    'Cavalo de Troia':null
+  };
+  var REFRESH_MS=10*60*1000; // re-lê a planilha a cada 10 min
+  var META_PRIMEIROS_VIRAIS=40; // meta do time (troque aqui para mudar a meta)
+
+  function parseCSV(text){
+    var rows=[],row=[],cur='',q=false;
+    for(var i=0;i<text.length;i++){
+      var c=text[i];
+      if(q){
+        if(c==='"'){ if(text[i+1]==='"'){cur+='"';i++;} else {q=false;} }
+        else { cur+=c; }
+      } else {
+        if(c==='"'){ q=true; }
+        else if(c===','){ row.push(cur); cur=''; }
+        else if(c==='\n'){ row.push(cur); rows.push(row); row=[]; cur=''; }
+        else if(c!=='\r'){ cur+=c; }
+      }
+    }
+    if(cur!==''||row.length){ row.push(cur); rows.push(row); }
+    return rows;
+  }
+  function toNum(v){
+    if(!v) return 0;
+    var s=String(v).replace(/\./g,'').replace(',','.').replace(/[^\d.]/g,'');
+    var n=parseFloat(s); return isNaN(n)?0:Math.round(n);
+  }
+  function fmt(n){ try{return n.toLocaleString('pt-BR');}catch(e){return String(n);} }
+  function esc(s){ return String(s||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function reelCode(link){ var m=String(link||'').match(/instagram\.com\/reel\/([A-Za-z0-9_-]+)/); return m?m[1]:null; }
+  function tiktokId(link){ var m=String(link||'').match(/tiktok\.com\/[^/]+\/video\/(\d+)/); return m?m[1]:null; }
+  function playerHTML(link){
+    var ig=reelCode(link), tk=tiktokId(link);
+    if(ig) return '<iframe src="https://www.instagram.com/reel/'+ig+'/embed/" scrolling="no" allowtransparency="true" allow="clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>';
+    // TikTok não renderiza em iframe embutido (bloqueia) → card em vez de player vazio
+    if(tk) return '<div class="ttcard">'
+      + '<span class="ttbadge">TikTok</span>'
+      + '<span class="ttico">▶</span>'
+      + '<a class="vlink" href="'+esc(link)+'" target="_blank" rel="noopener">Ver no TikTok ↗</a>'
+      + '</div>';
+    return link ? '<a class="vlink" href="'+esc(link)+'" target="_blank" rel="noopener">Ver vídeo ↗</a>' : '';
+  }
+  function handle(link){
+    var m=String(link||'').match(/instagram\.com\/([A-Za-z0-9_.]+)/);
+    return m?('@'+m[1]):'';
+  }
+
+  function rowsFrom(csvText){
+    var g=parseCSV(csvText);
+    if(!g.length) return [];
+    var head=g[0].map(function(h){return h.trim().toLowerCase();});
+    var ix={};
+    head.forEach(function(h,i){ ix[h]=i; });
+    function col(r,name){ return ix[name]!==undefined ? (r[ix[name]]||'').trim() : ''; }
+    return g.slice(1).map(function(r){
+      return {
+        squad: col(r,'squad') || '—',
+        est:   col(r,'estrategista'),
+        nome:  col(r,'nome mentorado') || col(r,'nome'),
+        views: toNum(ix['views']!==undefined ? r[ix['views']] : ''),
+        res:   col(r,'resultado'),
+        link:  col(r,'link'),
+        headline: col(r,'headline')
+      };
+    }).filter(function(x){ return x.est || x.nome; });
+  }
+
+  function liHTML(pos, who, sub, val, first){
+    return '<li class="'+(first?'first':'')+'">'
+      + '<span class="pos">'+pos+'º</span>'
+      + '<span class="who">'+esc(who)+(sub?'<small>'+esc(sub)+'</small>':'')+'</span>'
+      + '<span class="val">'+val+'</span></li>';
+  }
+  function empty(msg){ return '<li><span class="who" style="color:var(--ink-3)">'+esc(msg)+'</span></li>'; }
+
+  function render(recs){
+    var cases={}, squadFirst={}, caseList=[];
+    var totFirst=0, totViews=0, totCases=0;
+    SQUADS_CONHECIDOS.forEach(function(n){ squadFirst[n]=0; });
+
+    recs.forEach(function(x){
+      var R=x.res.toLowerCase();
+      totViews += x.views;
+      if(x.squad && x.squad!=='—' && squadFirst[x.squad]===undefined) squadFirst[x.squad]=0;
+
+      if(R.indexOf('primeiro viral')===0){
+        totFirst++;
+        if(x.squad) squadFirst[x.squad]=(squadFirst[x.squad]||0)+1;
+      }
+      if(R==='case'){
+        totCases++;
+        if(x.est) cases[x.est]=(cases[x.est]||0)+1;
+        caseList.push(x);
+      }
+    });
+
+    // meta do time (aparece nas telas de primeiros virais)
+    var META=META_PRIMEIROS_VIRAIS;
+    var pct=Math.max(0, Math.min(100, Math.round(totFirst/META*100)));
+    var falta=Math.max(0, META-totFirst);
+    var goalHTML =
+        '<div class="ghead"><span class="gl">Meta do time</span>'
+      + '<span class="gv">'+totFirst+' <span class="gs">/ '+META+' primeiros virais</span></span></div>'
+      + '<div class="bar"><i style="width:'+pct+'%"></i></div>'
+      + '<div class="gfoot"><span><b>'+pct+'%</b> da meta</span>'
+      + '<span>'+(falta>0 ? 'faltam <b>'+falta+'</b>' : 'META BATIDA 🏆')+'</span></div>';
+    [].forEach.call(document.querySelectorAll('.goal'), function(el){ el.innerHTML = goalHTML; });
+
+    // faixa de totais (aparece nas 3 telas de ranking)
+    var totHTML =
+        '<div class="tot"><span class="tl">Total de primeiros virais</span><span class="tv">'+totFirst+'</span></div>'
+      + '<div class="tot"><span class="tl">Total de views</span><span class="tv">'+fmt(totViews)+'</span></div>'
+      + '<div class="tot"><span class="tl">Total de cases</span><span class="tv">'+totCases+'</span></div>';
+    [].forEach.call(document.querySelectorAll('.totals'), function(el){ el.innerHTML = totHTML; });
+
+    // 1) META DE CADA SQUAD (primeiros virais)
+    var ordem = SQUADS_CONHECIDOS.slice();
+    Object.keys(squadFirst).forEach(function(n){ if(ordem.indexOf(n)<0) ordem.push(n); });
+    document.getElementById('squadGoals').innerHTML = ordem.map(function(n){
+      var v = squadFirst[n] || 0;
+      var meta = (METAS_SQUAD[n]===undefined) ? null : METAS_SQUAD[n];
+      if(meta===null || meta===0){
+        return '<div class="sg tbd"><div class="sghead">'
+          + '<span class="sgname">'+esc(n)+'</span>'
+          + '<span class="sgtbd">meta a definir</span></div></div>';
+      }
+      var p = Math.max(0, Math.min(100, Math.round(v/meta*100)));
+      var f = Math.max(0, meta-v);
+      return '<div class="sg'+(v>=meta?' done':'')+'"><div class="sghead">'
+        + '<span class="sgname">'+esc(n)+'</span>'
+        + '<span class="sgnum">'+v+' <small>/ '+meta+'</small></span></div>'
+        + '<div class="sgbar"><i style="width:'+p+'%"></i></div>'
+        + '<div class="sgfoot"><span>'+p+'%</span>'
+        + '<span>'+(f>0 ? 'faltam '+f : 'meta batida 🏆')+'</span></div></div>';
+    }).join('');
+
+    // 2) squads por primeiros virais
+    var rs=Object.keys(squadFirst).map(function(k){return {k:k,v:squadFirst[k]};})
+      .sort(function(a,b){return b.v-a.v;}).slice(0,5);
+    document.getElementById('rankSquad').innerHTML =
+      rs.map(function(x,i){ return liHTML(i+1,x.k,'',x.v,i===0 && x.v>0); }).join('')
+      + '<li class="totalrow"><span class="pos">Σ</span>'
+      + '<span class="who">TIME TODO<small>soma de todos os squads</small></span>'
+      + '<span class="val">'+totFirst+'</span></li>';
+
+    // 3) cases (ranking por estrategista + lista dos cases)
+    var rc=Object.keys(cases).map(function(k){return {k:k,v:cases[k]};})
+      .sort(function(a,b){return b.v-a.v;}).slice(0,5);
+    document.getElementById('rankCases').innerHTML =
+      (rc.length ? rc.map(function(x,i){ return liHTML(i+1,x.k,'',x.v+(x.v===1?' case':' cases'),i===0); }).join('')
+                 : empty('Sem cases ainda'))
+      + '<li class="totalrow"><span class="pos">Σ</span>'
+      + '<span class="who">TIME TODO<small>soma de todos os cases</small></span>'
+      + '<span class="val">'+totCases+'</span></li>';
+
+    document.getElementById('casesList').innerHTML =
+      caseList.length ? caseList.map(function(c){
+        return '<div class="case-card"><span class="cname">'+esc(c.nome)+'</span>'
+             + '<span class="cest">'+esc(c.est)+' · '+esc(c.squad)+'</span>'
+             + (handle(c.link)?'<span class="clink">'+esc(handle(c.link))+'</span>':'')+'</div>';
+      }).join('') : '<div class="case-card"><span class="cname" style="color:var(--ink-3)">Nenhum case ainda</span></div>';
+  }
+
+  function load(){
+    fetch('https://docs.google.com/spreadsheets/d/'+SID+'/export?format=csv&_='+Date.now())
+      .then(function(r){ return r.ok?r.text():''; })
+      .then(function(t){ try{ render(rowsFrom(t)); }catch(e){ console.error('render',e); } })
+      .catch(function(e){ console.error('fetch planilha',e); });
+  }
+  load();
+  setInterval(load, REFRESH_MS);
 })();
 </script>
 
