@@ -44,6 +44,10 @@
   @media(min-width:860px){.topbar .tag{display:inline;}}
   .datechip{font-size:12px;color:var(--ink-2);letter-spacing:.14em;flex:none;text-transform:uppercase;font-family:ui-monospace,Menlo,monospace;}
   .datechip b{color:var(--ink);}
+  /* selo de conteúdo vencido — só aparece se a data do conteúdo não for hoje */
+  .stale{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--gold);border:1px solid rgba(239,193,58,.45);background:rgba(239,193,58,.08);
+    border-radius:999px;padding:3px 9px;flex:none;white-space:nowrap;}
 
   /* slides */
   .slide{position:absolute;inset:0;padding:clamp(26px,4.4vh,60px) clamp(28px,5vw,80px);
@@ -250,6 +254,7 @@
     <span class="spacer"></span>
     <span class="tag">Atualizado diariamente às 09h</span>
     <span class="datechip" id="dateChip">—</span>
+    <span class="stale" id="staleChip" hidden></span>
   </div>
 
   <div class="frame" id="frame">
@@ -260,7 +265,7 @@
       <h1 class="big"><span class="y">RADAR</span><br>de assuntos<br>virais.</h1>
       <p class="subtitle">Os assuntos mais quentes do momento e os vídeos que estão viralizando com cada tema.</p>
       <div class="ticker-tags">
-        <span class="ttag"><span class="d g"></span>Espanha × Argentina decidem domingo</span>
+        <span class="ttag"><span class="d g"></span>Espanha × Argentina decidem dia 19</span>
         <span class="ttag"><span class="d v"></span>Camisa do Pelé: US$ 4,9 milhões</span>
         <span class="ttag"><span class="d s"></span>Governo prepara pacote contra o tarifaço</span>
         <span class="ttag"><span class="d r"></span>Spray de pimenta vai à sanção</span>
@@ -274,7 +279,7 @@
       <h2 class="title" style="font-size:clamp(24px,4vw,54px)">A Copa e o <span class="y">tabuleiro do poder</span></h2>
       <div class="vgrid">
         <div class="vcard" style="--ac:var(--gold)">
-          <span class="vtag">Domingo · Final</span>
+          <span class="vtag">Dom 19 · Final</span>
           <h3>Argentina vira sobre a Inglaterra e encara a Espanha</h3>
           <ul>
             <li><b>Argentina 2 × 1 Inglaterra:</b> Enzo Fernández (85’) e Lautaro (90+2’).</li>
@@ -344,7 +349,7 @@
       <h2 class="title" style="font-size:clamp(22px,3.6vw,48px)">O que está <span class="y">bombando agora</span></h2>
       <div class="embed-grid">
         <figure class="embed">
-          <figcaption><span class="handle">@foxdeportes</span>A reação de Messi com a Argentina na final · decisão é domingo</figcaption>
+          <figcaption><span class="handle">@foxdeportes</span>A reação de Messi com a Argentina na final · decisão dia 19</figcaption>
           <iframe src="https://www.instagram.com/reel/DagaWUvReJw/embed/" scrolling="no" allowtransparency="true" allow="clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
         </figure>
         <figure class="embed">
@@ -421,11 +426,25 @@
 
 <script>
 (function(){
-  // live date in topbar
-  var d=new Date();
-  var wd=['DOM','SEG','TER','QUA','QUI','SEX','SÁB'][d.getDay()];
-  var mo=['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'][d.getMonth()];
-  document.getElementById('dateChip').innerHTML=wd+' · <b>'+d.getDate()+' '+mo+' '+d.getFullYear()+'</b>';
+  // DATA DO CONTEÚDO — o deploy.sh carimba esta linha sozinho a cada publicação. Não editar na mão.
+  var CONTENT_DATE='2026-07-17';
+
+  // o topo mostra a data do CONTEÚDO (não a do navegador), senão um painel velho parece fresco
+  var WD=['DOM','SEG','TER','QUA','QUI','SEX','SÁB'];
+  var MO=['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+  var cp=CONTENT_DATE.split('-');
+  var d=new Date(+cp[0],+cp[1]-1,+cp[2]);
+  document.getElementById('dateChip').innerHTML=WD[d.getDay()]+' · <b>'+d.getDate()+' '+MO[d.getMonth()]+' '+d.getFullYear()+'</b>';
+
+  // conteúdo de outro dia: avisa na TV em vez de fingir que está no ar de hoje
+  var hoje=new Date();
+  var dias=Math.round((new Date(hoje.getFullYear(),hoje.getMonth(),hoje.getDate())-d)/86400000);
+  if(dias>0){
+    var pz=function(n){return (n<10?'0':'')+n;};
+    var sc=document.getElementById('staleChip');
+    sc.textContent='conteúdo de '+pz(d.getDate())+'/'+pz(d.getMonth()+1)+' · '+(dias===1?'1 dia':dias+' dias');
+    sc.hidden=false;
+  }
 
   var slides=Array.prototype.slice.call(document.querySelectorAll('.slide'));
   var frame=document.getElementById('frame');
@@ -480,7 +499,7 @@
     'Só para viralizar':7,
     'DAVI':7,
     'Black Squadron':8,
-    'Cavalo de Troia':null
+    'Cavalo de Troia':5
   };
   var REFRESH_MS=30*1000; // re-lê a planilha a cada 30s (o CSV do Google é no-cache)
   var META_PRIMEIROS_VIRAIS=40; // meta do time (troque aqui para mudar a meta)
